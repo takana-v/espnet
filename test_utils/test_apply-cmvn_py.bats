@@ -9,15 +9,16 @@ setup() {
     # Create an ark for dummy feature
     python << EOF
 import numpy as np
-import kaldiio
+# import kaldiio
 
 d = {'A-utt1': np.random.randn(1, 100).astype(np.float32),
      'A-utt2': np.random.randn(20, 100).astype(np.float32),
      'B-utt1': np.random.randn(100, 100).astype(np.float32),
      'B-utt2': np.random.randn(10, 100).astype(np.float32)}
 
-with open('${tmpdir}/feats.ark','wb') as f:
-    kaldiio.save_ark(f, d)
+raise RuntimeError("kaldiioを使用することはできません。")
+# with open('${tmpdir}/feats.ark','wb') as f:
+#     kaldiio.save_ark(f, d)
 
 count = sum(len(v) for v in d.values())
 sums = sum(v.sum(axis=0) for v in d.values())
@@ -28,7 +29,7 @@ stats[0, :-1] = sums
 stats[0, -1] = count
 stats[1, :-1] = square_sums
 stats[1, -1] = 0
-kaldiio.save_mat('${tmpdir}/stats.mat', stats)
+# kaldiio.save_mat('${tmpdir}/stats.mat', stats)
 
 EOF
 
@@ -47,9 +48,10 @@ teardown() {
     apply-cmvn ${tmpdir}/stats.mat ark:${tmpdir}/feats.ark ark:${tmpdir}/valid.ark
     python << EOF
 import numpy as np
-import kaldiio
-test = dict(kaldiio.load_ark('${tmpdir}/test.ark'))
-valid = dict(kaldiio.load_ark('${tmpdir}/valid.ark'))
+# import kaldiio
+raise RuntimeError("kaldiioを使用することはできません。")
+# test = dict(kaldiio.load_ark('${tmpdir}/test.ark'))
+# valid = dict(kaldiio.load_ark('${tmpdir}/valid.ark'))
 for k in test:
     np.testing.assert_allclose(test[k], valid[k], rtol=1e-3)
 EOF

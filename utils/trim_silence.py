@@ -10,7 +10,7 @@ import codecs
 import logging
 import os
 
-import kaldiio
+# import kaldiio
 import librosa
 import matplotlib.pyplot as plt
 import numpy
@@ -108,42 +108,43 @@ def main():
 
     os.makedirs(args.figdir, exist_ok=True)
 
-    with kaldiio.ReadHelper(args.rspecifier) as reader, codecs.open(
-        args.wspecifier, "w", encoding="utf-8"
-    ) as f:
-        for utt_id, (rate, array) in reader:
-            array = array.astype(numpy.float32)
-            if args.normalize is not None and args.normalize != 1:
-                array = array / (1 << (args.normalize - 1))
-            if rate != args.fs:
-                array = resampy.resample(array, rate, args.fs, axis=0)
-            array_trim, idx = librosa.effects.trim(
-                y=array,
-                top_db=args.threshold,
-                frame_length=args.win_length,
-                hop_length=args.shift_length,
-            )
-            start, end = idx / args.fs
+    raise RuntimeError("kaldiioを使用することはできません。")
+    # with kaldiio.ReadHelper(args.rspecifier) as reader, codecs.open(
+    #     args.wspecifier, "w", encoding="utf-8"
+    # ) as f:
+    #     for utt_id, (rate, array) in reader:
+    #         array = array.astype(numpy.float32)
+    #         if args.normalize is not None and args.normalize != 1:
+    #             array = array / (1 << (args.normalize - 1))
+    #         if rate != args.fs:
+    #             array = resampy.resample(array, rate, args.fs, axis=0)
+    #         array_trim, idx = librosa.effects.trim(
+    #             y=array,
+    #             top_db=args.threshold,
+    #             frame_length=args.win_length,
+    #             hop_length=args.shift_length,
+    #         )
+    #         start, end = idx / args.fs
 
-            # save figure
-            if args.figdir is not None:
-                plt.subplot(2, 1, 1)
-                plt.plot(array)
-                plt.title("Original")
-                plt.subplot(2, 1, 2)
-                plt.plot(array_trim)
-                plt.title("Trim")
-                plt.tight_layout()
-                plt.savefig(args.figdir + "/" + utt_id + ".png")
-                plt.close()
+    #         # save figure
+    #         if args.figdir is not None:
+    #             plt.subplot(2, 1, 1)
+    #             plt.plot(array)
+    #             plt.title("Original")
+    #             plt.subplot(2, 1, 2)
+    #             plt.plot(array_trim)
+    #             plt.title("Trim")
+    #             plt.tight_layout()
+    #             plt.savefig(args.figdir + "/" + utt_id + ".png")
+    #             plt.close()
 
-            # added minimum silence part
-            start = max(0.0, start - args.min_silence)
-            end = min(len(array) / args.fs, end + args.min_silence)
+    #         # added minimum silence part
+    #         start = max(0.0, start - args.min_silence)
+    #         end = min(len(array) / args.fs, end + args.min_silence)
 
-            # write to segments file
-            segment = "%s %s %f %f\n" % (utt_id, utt_id, start, end)
-            f.write(segment)
+    #         # write to segments file
+    #         segment = "%s %s %f %f\n" % (utt_id, utt_id, start, end)
+    #         f.write(segment)
 
 
 if __name__ == "__main__":

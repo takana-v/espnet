@@ -3,7 +3,7 @@ import argparse
 from distutils.util import strtobool
 import logging
 
-import kaldiio
+# import kaldiio
 import numpy
 
 from espnet.transform.cmvn import CMVN
@@ -123,7 +123,8 @@ def main():
     else:
         is_rspcifier = False
         if args.stats_filetype == "mat":
-            stats = kaldiio.load_mat(args.stats_rspecifier_or_rxfilename)
+            raise RuntimeError("kaldiioを使用することはできません。")
+            # stats = kaldiio.load_mat(args.stats_rspecifier_or_rxfilename)
         else:
             stats = numpy.load(args.stats_rspecifier_or_rxfilename)
         stats_dict = {None: stats}

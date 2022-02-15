@@ -3,7 +3,7 @@ import argparse
 from distutils.util import strtobool
 import logging
 
-import kaldiio
+# import kaldiio
 import numpy
 
 from espnet.transform.transformation import Transformation
@@ -103,44 +103,45 @@ def main():
         compression_method=args.compression_method,
         pcm_format=args.format,
     ) as writer:
-        for utt_id, (rate, array) in kaldiio.ReadHelper(args.rspecifier, args.segments):
-            if args.filetype == "mat":
-                # Kaldi-matrix doesn't support integer
-                array = array.astype(numpy.float32)
+        raise RuntimeError("kaldiioを使用することはできません。")
+        # for utt_id, (rate, array) in kaldiio.ReadHelper(args.rspecifier, args.segments):
+        #     if args.filetype == "mat":
+        #         # Kaldi-matrix doesn't support integer
+        #         array = array.astype(numpy.float32)
 
-            if array.ndim == 1:
-                # (Time) -> (Time, Channel)
-                array = array[:, None]
+        #     if array.ndim == 1:
+        #         # (Time) -> (Time, Channel)
+        #         array = array[:, None]
 
-            if args.normalize is not None and args.normalize != 1:
-                array = array.astype(numpy.float32)
-                array = array / (1 << (args.normalize - 1))
+        #     if args.normalize is not None and args.normalize != 1:
+        #         array = array.astype(numpy.float32)
+        #         array = array / (1 << (args.normalize - 1))
 
-            if preprocessing is not None:
-                orgtype = array.dtype
-                out = preprocessing(array, uttid_list=utt_id)
-                out = out.astype(orgtype)
+        #     if preprocessing is not None:
+        #         orgtype = array.dtype
+        #         out = preprocessing(array, uttid_list=utt_id)
+        #         out = out.astype(orgtype)
 
-                if args.keep_length:
-                    if len(out) > len(array):
-                        out = numpy.pad(
-                            out,
-                            [(0, len(out) - len(array))]
-                            + [(0, 0) for _ in range(out.ndim - 1)],
-                            mode="constant",
-                        )
-                    elif len(out) < len(array):
-                        # The length can be changed by stft, for example.
-                        out = out[: len(out)]
+        #         if args.keep_length:
+        #             if len(out) > len(array):
+        #                 out = numpy.pad(
+        #                     out,
+        #                     [(0, len(out) - len(array))]
+        #                     + [(0, 0) for _ in range(out.ndim - 1)],
+        #                     mode="constant",
+        #                 )
+        #             elif len(out) < len(array):
+        #                 # The length can be changed by stft, for example.
+        #                 out = out[: len(out)]
 
-                array = out
+        #         array = out
 
-            # shape = (Time, Channel)
-            if args.filetype in ["sound.hdf5", "sound"]:
-                # Write Tuple[int, numpy.ndarray] (scipy style)
-                writer[utt_id] = (rate, array)
-            else:
-                writer[utt_id] = array
+        #     # shape = (Time, Channel)
+        #     if args.filetype in ["sound.hdf5", "sound"]:
+        #         # Write Tuple[int, numpy.ndarray] (scipy style)
+        #         writer[utt_id] = (rate, array)
+        #     else:
+        #         writer[utt_id] = array
 
 
 if __name__ == "__main__":

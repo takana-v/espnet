@@ -1,7 +1,7 @@
 import io
 
 import h5py
-import kaldiio
+# import kaldiio
 import numpy as np
 
 
@@ -27,14 +27,16 @@ class CMVN(object):
         else:
             # Use for global CMVN
             if filetype == "mat":
-                stats_dict = {None: kaldiio.load_mat(stats)}
+                # stats_dict = {None: kaldiio.load_mat(stats)}
+                raise RuntimeError("kaldiioを使用することはできません。")
             # Use for global CMVN
             elif filetype == "npy":
                 stats_dict = {None: np.load(stats)}
             # Use for speaker CMVN
             elif filetype == "ark":
                 self.accept_uttid = True
-                stats_dict = dict(kaldiio.load_ark(stats))
+                # stats_dict = dict(kaldiio.load_ark(stats))
+                raise RuntimeError("kaldiioを使用することはできません。")
             # Use for speaker CMVN
             elif filetype == "hdf5":
                 self.accept_uttid = True

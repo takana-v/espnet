@@ -7,7 +7,7 @@ import argparse
 from distutils.util import strtobool
 import logging
 
-import kaldiio
+# import kaldiio
 import numpy
 import resampy
 
@@ -100,34 +100,35 @@ def main():
         logging.basicConfig(level=logging.WARN, format=logfmt)
     logging.info(get_commandline_args())
 
-    with kaldiio.ReadHelper(
-        args.rspecifier, segments=args.segments
-    ) as reader, file_writer_helper(
-        args.wspecifier,
-        filetype=args.filetype,
-        write_num_frames=args.write_num_frames,
-        compress=args.compress,
-        compression_method=args.compression_method,
-    ) as writer:
-        for utt_id, (rate, array) in reader:
-            array = array.astype(numpy.float32)
-            if args.fs is not None and rate != args.fs:
-                array = resampy.resample(array, rate, args.fs, axis=0)
-            if args.normalize is not None and args.normalize != 1:
-                array = array / (1 << (args.normalize - 1))
+    raise RuntimeError("kaldiioを使用することはできません。")
+    # with kaldiio.ReadHelper(
+    #     args.rspecifier, segments=args.segments
+    # ) as reader, file_writer_helper(
+    #     args.wspecifier,
+    #     filetype=args.filetype,
+    #     write_num_frames=args.write_num_frames,
+    #     compress=args.compress,
+    #     compression_method=args.compression_method,
+    # ) as writer:
+    #     for utt_id, (rate, array) in reader:
+    #         array = array.astype(numpy.float32)
+    #         if args.fs is not None and rate != args.fs:
+    #             array = resampy.resample(array, rate, args.fs, axis=0)
+    #         if args.normalize is not None and args.normalize != 1:
+    #             array = array / (1 << (args.normalize - 1))
 
-            lmspc = logmelspectrogram(
-                x=array,
-                fs=args.fs if args.fs is not None else rate,
-                n_mels=args.n_mels,
-                n_fft=args.n_fft,
-                n_shift=args.n_shift,
-                win_length=args.win_length,
-                window=args.window,
-                fmin=args.fmin,
-                fmax=args.fmax,
-            )
-            writer[utt_id] = lmspc
+    #         lmspc = logmelspectrogram(
+    #             x=array,
+    #            fs=args.fs if args.fs is not None else rate,
+    #             n_mels=args.n_mels,
+    #             n_fft=args.n_fft,
+    #             n_shift=args.n_shift,
+    #             win_length=args.win_length,
+    #             window=args.window,
+    #             fmin=args.fmin,
+    #             fmax=args.fmax,
+    #         )
+    #         writer[utt_id] = lmspc
 
 
 if __name__ == "__main__":

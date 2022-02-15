@@ -4,7 +4,7 @@ import logging
 import os
 
 import h5py
-import kaldiio
+# import kaldiio
 import numpy as np
 import soundfile
 
@@ -539,9 +539,11 @@ class LoadInputsAndTargets(object):
             # In this case, "123" indicates the starting points of the matrix
             # load_mat can load both matrix and vector
             if not self.keep_all_data_on_mem:
-                return kaldiio.load_mat(filepath)
+                raise RuntimeError("kaldiioを使用することはできません。")
+                # return kaldiio.load_mat(filepath)
             if filepath not in self._loaders:
-                self._loaders[filepath] = kaldiio.load_mat(filepath)
+                raise RuntimeError("kaldiioを使用することはできません。")
+                # self._loaders[filepath] = kaldiio.load_mat(filepath)
             return self._loaders[filepath]
         elif filetype == "scp":
             # e.g.
@@ -551,7 +553,8 @@ class LoadInputsAndTargets(object):
             loader = self._loaders.get(filepath)
             if loader is None:
                 # To avoid disk access, create loader only for the first time
-                loader = kaldiio.load_scp(filepath)
+                raise RuntimeError("kaldiioを使用することはできません。")
+                # loader = kaldiio.load_scp(filepath)
                 self._loaders[filepath] = loader
             return loader[key]
         else:

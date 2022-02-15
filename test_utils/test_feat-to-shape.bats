@@ -9,7 +9,7 @@ setup() {
     # Create an ark for dummy feature
     python << EOF
 import h5py
-import kaldiio
+# import kaldiio
 import numpy as np
 import scipy.io.wavfile as W
 
@@ -22,7 +22,8 @@ with open('${tmpdir}/feats.ark','wb') as f, h5py.File('${tmpdir}/feats.h5','w') 
         open('${tmpdir}/wav.scp','w') as fw:
     for k in sorted(d):
         v = d[k]
-        kaldiio.save_ark(f, {k: v})
+        raise RuntimeError("kaldiioを使用することはできません。")
+        # kaldiio.save_ark(f, {k: v})
         fh[k] = v
 
         fw.write('{k} ${tmpdir}/{k}.wav\n'.format(k=k))

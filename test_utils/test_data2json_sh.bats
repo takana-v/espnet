@@ -20,25 +20,26 @@ setup() {
     # Create an ark for dummy feature
     python << EOF
 import numpy as np
-import kaldiio
+# import kaldiio
 
-with kaldiio.WriteHelper('ark,scp:{},{}'.format('$ark_1', '$scp_1')) as f:
-    for i in range(2):
-        x = np.ones((30, 20)).astype(np.float32)
-        uttid = 'uttid{}'.format(i)
-        f[uttid] = x
+raise RuntimeError("kaldiioを使用することはできません。")
+# with kaldiio.WriteHelper('ark,scp:{},{}'.format('$ark_1', '$scp_1')) as f:
+#     for i in range(2):
+#         x = np.ones((30, 20)).astype(np.float32)
+#         uttid = 'uttid{}'.format(i)
+#         f[uttid] = x
 
-with kaldiio.WriteHelper('ark,scp:{},{}'.format('$ark_2', '$scp_2')) as f:
-    for i in range(2):
-        x = np.ones((30, 20)).astype(np.float32)
-        uttid = 'uttid{}'.format(i)
-        f[uttid] = x
+# with kaldiio.WriteHelper('ark,scp:{},{}'.format('$ark_2', '$scp_2')) as f:
+#     for i in range(2):
+#         x = np.ones((30, 20)).astype(np.float32)
+#         uttid = 'uttid{}'.format(i)
+#         f[uttid] = x
 
-with kaldiio.WriteHelper('ark,scp:{},{}'.format('$ark_1_multilingual', '$scp_1_multilingual')) as f:
-    for i in range(2):
-        x = np.ones((30, 20)).astype(np.float32)
-        uttid = 'uttid{}-lang{}'.format(i, i+1)
-        f[uttid] = x
+# with kaldiio.WriteHelper('ark,scp:{},{}'.format('$ark_1_multilingual', '$scp_1_multilingual')) as f:
+#     for i in range(2):
+#         x = np.ones((30, 20)).astype(np.float32)
+#         uttid = 'uttid{}-lang{}'.format(i, i+1)
+#         f[uttid] = x
 EOF
 
     cat << EOF > $tmpdir/data/text

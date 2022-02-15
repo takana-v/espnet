@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Dict
 
 import h5py
-import kaldiio
+# import kaldiio
 import numpy
 import soundfile
 
@@ -135,12 +135,13 @@ class KaldiWriter(BaseWriter):
     def __init__(
         self, wspecifier, write_num_frames=None, compress=False, compression_method=2
     ):
-        if compress:
-            self.writer = kaldiio.WriteHelper(
-                wspecifier, compression_method=compression_method
-            )
-        else:
-            self.writer = kaldiio.WriteHelper(wspecifier)
+        raise RuntimeError("kaldiioを使用することはできません。")
+        # if compress:
+        #    self.writer = kaldiio.WriteHelper(
+        #         wspecifier, compression_method=compression_method
+        #     )
+        # else:
+        #     self.writer = kaldiio.WriteHelper(wspecifier)
         self.writer_scp = None
         if write_num_frames is not None:
             self.writer_nframe = get_num_frames_writer(write_num_frames)

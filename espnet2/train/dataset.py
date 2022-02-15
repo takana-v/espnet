@@ -16,7 +16,7 @@ from typing import Union
 
 import h5py
 import humanfriendly
-import kaldiio
+# import kaldiio
 import numpy as np
 import torch
 from torch.utils.data.dataset import Dataset
@@ -121,7 +121,8 @@ def sound_loader(path, float_dtype=None):
 
 
 def kaldi_loader(path, float_dtype=None, max_cache_fd: int = 0):
-    loader = kaldiio.load_scp(path, max_cache_fd=max_cache_fd)
+    raise RuntimeError("kaldiioを使用することはできません。")
+    # loader = kaldiio.load_scp(path, max_cache_fd=max_cache_fd)
     return AdapterForSoundScpReader(loader, float_dtype)
 
 

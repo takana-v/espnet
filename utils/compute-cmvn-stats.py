@@ -2,7 +2,7 @@
 import argparse
 import logging
 
-import kaldiio
+# import kaldiio
 import numpy as np
 
 from espnet.transform.transformation import Transformation
@@ -183,7 +183,8 @@ def main():
             np.save(args.wspecifier_or_wxfilename, matrix)
         elif args.out_filetype == "mat":
             # Kaldi supports only matrix or vector
-            kaldiio.save_mat(args.wspecifier_or_wxfilename, matrix)
+            raise RuntimeError("kaldiioを使用することはできません。")
+            # kaldiio.save_mat(args.wspecifier_or_wxfilename, matrix)
         else:
             raise RuntimeError(
                 "Not supporting: --out-filetype {}".format(args.out_filetype)

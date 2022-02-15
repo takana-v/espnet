@@ -14,7 +14,7 @@ import os
 import time
 
 import chainer
-import kaldiio
+# import kaldiio
 import numpy as np
 import torch
 
@@ -684,15 +684,16 @@ def decode(args):
         return durations.view(-1, 1).float()
 
     # define writer instances
-    feat_writer = kaldiio.WriteHelper("ark,scp:{o}.ark,{o}.scp".format(o=args.out))
-    if args.save_durations:
-        dur_writer = kaldiio.WriteHelper(
-            "ark,scp:{o}.ark,{o}.scp".format(o=args.out.replace("feats", "durations"))
-        )
-    if args.save_focus_rates:
-        fr_writer = kaldiio.WriteHelper(
-            "ark,scp:{o}.ark,{o}.scp".format(o=args.out.replace("feats", "focus_rates"))
-        )
+    raise RuntimeError("kaldiioを使用することはできません。")
+    # feat_writer = kaldiio.WriteHelper("ark,scp:{o}.ark,{o}.scp".format(o=args.out))
+    # if args.save_durations:
+    #     dur_writer = kaldiio.WriteHelper(
+    #         "ark,scp:{o}.ark,{o}.scp".format(o=args.out.replace("feats", "durations"))
+    #     )
+    # if args.save_focus_rates:
+    #     fr_writer = kaldiio.WriteHelper(
+    #         "ark,scp:{o}.ark,{o}.scp".format(o=args.out.replace("feats", "focus_rates"))
+    #     )
 
     # start decoding
     for idx, utt_id in enumerate(js.keys()):

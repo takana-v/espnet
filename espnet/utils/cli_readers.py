@@ -3,7 +3,7 @@ import logging
 import sys
 
 import h5py
-import kaldiio
+# import kaldiio
 import soundfile
 
 from espnet.utils.io_utils import SoundHDF5File
@@ -59,11 +59,12 @@ class KaldiReader:
         self.segments = segments
 
     def __iter__(self):
-        with kaldiio.ReadHelper(self.rspecifier, segments=self.segments) as reader:
-            for key, array in reader:
-                if self.return_shape:
-                    array = array.shape
-                yield key, array
+        raise RuntimeError("kaldiioを使用することはできません。")
+        # with kaldiio.ReadHelper(self.rspecifier, segments=self.segments) as reader:
+        #     for key, array in reader:
+        #         if self.return_shape:
+        #             array = array.shape
+        #         yield key, array
 
 
 class HDF5Reader:

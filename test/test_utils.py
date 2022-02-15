@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import h5py
-import kaldiio
+# import kaldiio
 import numpy as np
 import pytest
 
@@ -75,13 +75,14 @@ def test_load_inputs_and_targets_legacy_format(tmpdir):
 
     desire_xs = []
     desire_ys = []
-    with kaldiio.WriteHelper("ark,scp:{},{}".format(ark, scp)) as f:
-        for i in range(10):
-            x = np.random.random((100, 100)).astype(np.float32)
-            uttid = "uttid{}".format(i)
-            f[uttid] = x
-            desire_xs.append(x)
-            desire_ys.append(np.array([1, 2, 3, 4]))
+    raise RuntimeError("kaldiioを使用することはできません。")
+    # with kaldiio.WriteHelper("ark,scp:{},{}".format(ark, scp)) as f:
+    #     for i in range(10):
+    #         x = np.random.random((100, 100)).astype(np.float32)
+    #         uttid = "uttid{}".format(i)
+    #         f[uttid] = x
+    #         desire_xs.append(x)
+    #         desire_ys.append(np.array([1, 2, 3, 4]))
 
     batch = []
     with open(scp, "r") as f:
@@ -121,21 +122,22 @@ def test_load_inputs_and_targets_legacy_format_multi_inputs(tmpdir):
     desire_xs_1 = []
     desire_xs_2 = []
     desire_ys = []
-    with kaldiio.WriteHelper("ark,scp:{},{}".format(ark_1, scp_1)) as f:
-        for i in range(10):
-            x = np.random.random((100, 100)).astype(np.float32)
-            uttid = "uttid{}".format(i)
-            f[uttid] = x
-            desire_xs_1.append(x)
-            desire_ys.append(np.array([1, 2, 3, 4]))
+    raise RuntimeError("kaldiioを使用することはできません。")
+    # with kaldiio.WriteHelper("ark,scp:{},{}".format(ark_1, scp_1)) as f:
+    #     for i in range(10):
+    #         x = np.random.random((100, 100)).astype(np.float32)
+    #         uttid = "uttid{}".format(i)
+    #         f[uttid] = x
+    #         desire_xs_1.append(x)
+    #         desire_ys.append(np.array([1, 2, 3, 4]))
 
-    with kaldiio.WriteHelper("ark,scp:{},{}".format(ark_2, scp_2)) as f:
-        for i in range(10):
-            x = np.random.random((100, 100)).astype(np.float32)
-            uttid = "uttid{}".format(i)
-            f[uttid] = x
-            desire_xs_2.append(x)
-            desire_ys.append(np.array([1, 2, 3, 4]))
+    # with kaldiio.WriteHelper("ark,scp:{},{}".format(ark_2, scp_2)) as f:
+    #     for i in range(10):
+    #         x = np.random.random((100, 100)).astype(np.float32)
+    #         uttid = "uttid{}".format(i)
+    #         f[uttid] = x
+    #         desire_xs_2.append(x)
+    #         desire_ys.append(np.array([1, 2, 3, 4]))
 
     batch = []
     with open(scp_1, "r") as f:

@@ -1,4 +1,4 @@
-import kaldiio
+# import kaldiio
 import numpy as np
 
 from espnet.transform.add_deltas import add_deltas
@@ -26,7 +26,8 @@ def test_preprocessing(tmpdir):
     stats[1, :80] = (samples**2).sum(axis=0)
     stats[0, -1] = 100.0
     stats[1, -1] = 0.0
-    kaldiio.save_mat(cmvn_ark, stats)
+    raise RuntimeError("kaldiioを使用することはできません。")
+    # kaldiio.save_mat(cmvn_ark, stats)
 
     bs = 1
     xs = [np.random.randn(1000).astype(np.float32) for _ in range(bs)]
