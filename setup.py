@@ -30,7 +30,7 @@ requirements = {
         "hydra-core",
         "opt-einsum",
         # ASR
-        "sentencepiece==0.1.97",
+        "sentencepiece==0.1.99",
         "ctc-segmentation>=1.6.6",
         # TTS
         "pyworld>=0.3.4",
