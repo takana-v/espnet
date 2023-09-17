@@ -4,7 +4,7 @@ import argparse
 import codecs
 import os
 
-import kaldiio
+# import kaldiio
 import numpy as np
 from tqdm import tqdm
 

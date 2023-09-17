@@ -7,7 +7,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import Optional, Tuple
 
-import kaldiio
+# import kaldiio
 import numpy as np
 import resampy
 import soundfile

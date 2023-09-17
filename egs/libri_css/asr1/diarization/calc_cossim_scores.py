@@ -6,7 +6,7 @@
 import argparse
 
 import numpy as np
-from kaldiio import ReadHelper, WriteHelper
+# from kaldiio import ReadHelper, WriteHelper
 from scipy.spatial.distance import pdist, squareform
 
 

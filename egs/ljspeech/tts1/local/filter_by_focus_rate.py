@@ -10,7 +10,7 @@ import argparse
 import logging
 import os
 
-import kaldiio
+# import kaldiio
 
 
 def main():

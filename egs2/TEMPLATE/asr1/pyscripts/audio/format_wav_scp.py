@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 import humanfriendly
-import kaldiio
+# import kaldiio
 import numpy as np
 import resampy
 import soundfile

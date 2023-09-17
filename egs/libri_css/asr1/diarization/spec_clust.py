@@ -7,7 +7,7 @@ import argparse
 
 import numpy as np
 import scipy
-from kaldiio import ReadHelper
+# from kaldiio import ReadHelper
 from sklearn.cluster import SpectralClustering
 
 """

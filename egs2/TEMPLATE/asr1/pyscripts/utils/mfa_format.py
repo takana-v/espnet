@@ -19,7 +19,7 @@ import traceback
 from pathlib import Path
 from typing import Dict
 
-import kaldiio
+# import kaldiio
 import soundfile as sf
 from pyopenjtalk import run_frontend
 
