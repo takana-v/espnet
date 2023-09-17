@@ -57,10 +57,46 @@ TTS recipe consists of 9 stages.
 ### 1. Data preparation
 
 Data preparation stage.
+You have two methods to generate the data:
+
+#### ESPnet format:
+
 It calls `local/data.sh` to creates Kaldi-style data directories in `data/` for training, validation, and evaluation sets.
 
 See also:
 - [About Kaldi-style data directory](https://github.com/espnet/espnet/tree/master/egs2/TEMPLATE#about-kaldi-style-data-directory)
+
+#### (New) MFA Aligments generation
+
+You can generate aligments using the [Montreal-Forced-Aligner tool](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner)
+Use the script `scripts/mfa.sh` to generate the required mfa aligments and train a model that employs these alignments.
+
+Because the script `scripts/mfa.sh` prepares the data, it is not required to execute `local/data.sh` previously. However, you will
+need to set some additional flags, such as `--split_sets`, `--samplerate`, or `--acoustic_model`:
+
+```bash
+./scripts/mfa.sh --split_sets "train_set dev_set test_set" \
+    --stage 1 \
+    --stop-stage 2 \
+    --train true --nj 36 --g2p_model espeak_ng_english_vits
+```
+
+You can find a reference at `egs2/ljspeech/tts1/local/run_mfa.sh`.
+
+The script `scripts/mfa.sh` will generate the aligments using a given `g2p_model` & `acoustic_model` and store it in the `<split_sets>_phn` directory.
+This script download a pretrained model (if `--train false`) or trains the mfa g2p and acoustic model (if `--train true`), for then generate the aligments.
+
+Then, you can continue the training on the main script:
+
+```bash
+./run.sh --train-set train_set_phn \
+         --dev-set dev_set_phn \
+         --test_sets "dev_set_phn test_set_phn" \
+         --stage 2 \
+         --g2p none \
+         --cleaner none \
+         --teacher_dumpdir "data"
+```
 
 ### 2. Wav dump / Embedding preparation
 
@@ -69,7 +105,7 @@ This stage reformats `wav.scp` in data directories.
 
 Additionally, We support X-vector extraction in this stage as you can use in ESPnet1.
 If you specify `--use_xvector true` (Default: `use_xvector=false`), we extract X-vectors.
-You can select the type of toolkit to use (kaldi, speechbrain, or espnet) when you specify `--xvector_tool <option>` 
+You can select the type of toolkit to use (kaldi, speechbrain, or espnet) when you specify `--xvector_tool <option>`
 (Default: `xvector_tool=kaldi`).
 If you specify kaldi, then we additionally extract mfcc features and vad decision.
 This processing requires the compiled kaldi, please be careful.
@@ -299,7 +335,25 @@ tts_conf:
     spk_embed_dim: 512               # dimension of speaker embedding
     spk_embed_integration_type: add  # how to integrate speaker embedding
 ```
-Please run the training from stage 6.
+
+#### (Optional) Train on speaker-averaged X-vectors
+
+Models trained using speaker-averaged X-vectors may generalise better to inference tasks where the utterance-specific xvector is unknown, compared to models trained using embeddings derived from individual training utterances.
+After you perform the above extraction step, if you want to train and evaluate using speaker-averaged X-vectors you can use the following command to replace utterance-level X-vectors with speaker-averaged values. Make sure to set your `train_set` `dev_set` and `test_set` variables beforehand:
+```
+for dset in "${train_set}" "${dev_set}" "${test_set}"
+do
+    ./pyscripts/utils/convert_to_avg_xvectors.py \
+        --xvector-path dump/xvector/${dset}/xvector.scp \
+        --utt2spk data/${dset}/utt2spk \
+        --spk-xvector-path dump/xvector/${dset}/spk_xvector.scp
+done
+```
+The original xvector.scp files are renamed to xvector.scp.bak in case you wish to revert the changes.
+
+---
+
+Once you've performed extraction and optionally the speaker-averaged replacement step, please run the training from stage 6.
 ```sh
 $ ./run.sh --stage 6 --use_xvector true --train_config /path/to/your_xvector_config.yaml
 ```
@@ -552,11 +606,13 @@ You can find the example configs in:
 
 ### Evaluation
 
-We provide three objective evaluation metrics:
+We provide five objective evaluation metrics:
 
 - Mel-cepstral distortion (MCD)
 - Log-F0 root mean square error (log-F0 RMSE)
 - Character error rate (CER)
+- Conditional Fréchet Speech Distance (CFSD)
+- Speaker Embedding Cosine Similarity (SECS)
 
 MCD and log-F0 RMSE reflect speaker, prosody, and phonetic content similarities, and CER can reflect the intelligibility.
 For MCD and log-F0 RMSE, we apply dynamic time-warping (DTW) to match the length difference between ground-truth speech and generated speech.
@@ -593,8 +649,16 @@ cd egs2/<recipe_name>/tts1
     exp/<model_dir_name>/<decode_dir_name>/eval1/wav/wav.scp \
     exp/<model_dir_name>/<decode_dir_name>/asr_results
 
+# You can also use openai whisper for evaluation
+./scripts/utils/evaluate_asr.sh \
+    --whisper_tag base \
+    --nj 1 \
+    --gt_text "dump/raw/eval1/text" \
+    exp/<model_dir_name>/<decode_dir_name>/eval1/wav/wav.scp \
+    exp/<model_dir_name>/<decode_dir_name>/asr_results
+
 # Since ASR model does not use punctuation, it is better to remove punctuations if it contains
-./utils/remove_punctuation.pl < dump/raw/eval1/text > dump/raw/eval1/text.no_punc
+./scripts/utils/remove_punctuation.pl < dump/raw/eval1/text > dump/raw/eval1/text.no_punc
 ./scripts/utils/evaluate_asr.sh \
     --model_tag <asr_model_tag> \
     --nj 1 \
@@ -615,6 +679,16 @@ awk < "exp/<model_dir_name>/<decode_dir_name>/eval1/wav/wav.scp" \
     --gt_text "dump/raw/eval1/text.no_punc" \
     exp/<model_dir_name>/<decode_dir_name>/eval1/wav/wav_pad.scp \
     exp/<model_dir_name>/<decode_dir_name>/asr_results
+
+# Evaluate CFSD
+./pyscripts/utils/evaluate_cfsd.py \
+    exp/<model_dir_name>/<decode_dir_name>/eval1/wav/wav.scp \
+    dump/raw/eval1/wav.scp
+
+# Evaluate SECS
+./pyscripts/utils/evaluate_secs.py \
+    exp/<model_dir_name>/<decode_dir_name>/eval1/wav/wav.scp \
+    dump/raw/eval1/wav.scp
 
 ```
 
@@ -686,6 +760,12 @@ You can change via `--g2p` option in `tts.sh`.
 - `espeak_ng_hindi`: [espeak-ng/espeak-ng](https://github.com/espeak-ng/espeak-ng)
     - e.g. `नमस्ते दुनिया` -> `[n, ə, m, ˈʌ, s, t, eː, d, ˈʊ, n, ɪ, j, ˌaː]`
     - This result provided by the wrapper library [bootphon/phonemizer](https://github.com/bootphon/phonemizer)
+- `espeak_ng_italian`: [espeak-ng/espeak-ng](https://github.com/espeak-ng/espeak-ng)
+    - e.g. `Ciao mondo.` -> `[tʃ, ˈa, o, m, ˈo, n, d, o, .]`
+    - This result provided by the wrapper library [bootphon/phonemizer](https://github.com/bootphon/phonemizer)
+- `espeak_ng_polish`: [espeak-ng/espeak-ng](https://github.com/espeak-ng/espeak-ng)
+    - e.g. `Witaj świecie.` -> `[v, ˈi, t, a, j, ɕ, fʲ, ˈɛ, tɕ, ɛ, .]`
+    - This result provided by the wrapper library [bootphon/phonemizer](https://github.com/bootphon/phonemizer)
 - `espeak_ng_english_us_vits`: [espeak-ng/espeak-ng](https://github.com/espeak-ng/espeak-ng)
     - VITS official implementation-like processing (https://github.com/jaywalnut310/vits)
     - e.g. `Hello World.` -> `[h, ə, l, ˈ, o, ʊ, , <space>, w, ˈ, ɜ, ː, l, d, .]`
@@ -695,6 +775,9 @@ You can change via `--g2p` option in `tts.sh`.
 - `g2pk_no_space`: [Kyubyong/g2pK](https://github.com/Kyubyong/g2pK)
     - Same G2P but do not use word separator
     - e.g. `안녕하세요 세계입니다.` -> `[ᄋ, ᅡ, ᆫ, ᄂ, ᅧ, ᆼ, ᄒ, ᅡ, ᄉ, ᅦ, ᄋ, ᅭ, ᄉ, ᅦ, ᄀ, ᅨ, ᄋ, ᅵ, ᆷ, ᄂ, ᅵ, ᄃ, ᅡ, .]`
+- `g2pk_explicit_space`: [Kyubyong/g2pK](https://github.com/Kyubyong/g2pK)
+    - Same G2P but use explicit word separator
+    - e.g. `안녕하세요 세계입니다.` -> `[ᄋ, ᅡ, ᆫ, ᄂ, ᅧ, ᆼ, ᄒ, ᅡ, ᄉ, ᅦ, ᄋ, ᅭ, <space>, ᄉ, ᅦ, ᄀ, ᅨ, ᄋ, ᅵ, ᆷ, ᄂ, ᅵ, ᄃ, ᅡ, .]`
 - `korean_jaso`: [jdongian/python-jamo](https://github.com/jdongian/python-jamo)
     - e.g. `나는 학교에 갑니다.` -> `[ᄂ, ᅡ, ᄂ, ᅳ, ᆫ, <space>, ᄒ, ᅡ, ᆨ, ᄀ, ᅭ, ᄋ, ᅦ, <space>, ᄀ, ᅡ, ᆸ, ᄂ, ᅵ, ᄃ, ᅡ, .]`
 - `korean_jaso_no_space`: [jdongian/python-jamo](https://github.com/jdongian/python-jamo)
@@ -726,6 +809,7 @@ You can train the following models by changing `*.yaml` config for `--train_conf
 - [FastSpeech2](https://arxiv.org/abs/2006.04558) ([FastPitch](https://arxiv.org/abs/2006.06873))
 - [Conformer](https://arxiv.org/abs/2005.08100)-based FastSpeech / FastSpeech2
 - [VITS](https://arxiv.org/abs/2106.06103)
+- [JETS](https://arxiv.org/abs/2203.16852)
 
 You can find example configs of the above models in [`egs2/ljspeech/tts1/conf/tuning`](../../ljspeech/tts1/conf/tuning).
 
@@ -741,6 +825,11 @@ X-Vector is provided by kaldi and pretrained with VoxCeleb corpus.
 You can find example configs of the above models in:
 - [`egs2/vctk/tts1/conf/tuning`](../../vctk/tts1/conf/tuning).
 - [`egs2/libritts/tts1/conf/tuning`](../../vctk/libritts/conf/tuning).
+
+And now we support other toolkit's xvector.
+Please check the following options.
+
+https://github.com/espnet/espnet/blob/df053b8c13c26fe289fc882751801fd781e9d43e/egs2/TEMPLATE/tts1/tts.sh#L69-L71
 
 ## FAQ
 
@@ -910,7 +999,7 @@ We recommend modifying the following part in `utils/validate_data_dir.sh` to be 
 
 https://github.com/kaldi-asr/kaldi/blob/40c71c5ee3ee5dffa1ad2c53b1b089e16d967bb5/egs/wsj/s5/utils/validate_data_dir.sh#L9
 
-> `utils/validate_text.pl: The line for utterance xxx contains disallowed Unicode whitespaces`  
+> `utils/validate_text.pl: The line for utterance xxx contains disallowed Unicode whitespaces`
 > `utils/validate_text.pl: ERROR: text file 'data/xxx' contains disallowed UTF-8 whitespace character(s)`
 
 The use of zenkaku whitespace in `text` is not allowed.
@@ -957,4 +1046,3 @@ This is because we use prenet in the decoder, which always applies dropout.
 See more info in [Tacotron2 paper](https://arxiv.org/abs/1712.05884).
 
 If you want to fix the results, you can use [`--always_fix_seed` option](https://github.com/espnet/espnet/blob/f03101557753517ebac8c432f0793d97d68fa5f0/espnet2/bin/tts_inference.py#L601-L606).
-

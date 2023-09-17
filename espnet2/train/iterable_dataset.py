@@ -2,12 +2,7 @@
 import copy
 from io import StringIO
 from pathlib import Path
-from typing import Callable
-from typing import Collection
-from typing import Dict
-from typing import Iterator
-from typing import Tuple
-from typing import Union
+from typing import Callable, Collection, Dict, Iterator, Tuple, Union
 
 # import kaldiio
 import numpy as np
@@ -48,9 +43,11 @@ DATA_TYPES = {
     "kaldi_ark": load_kaldi,
     "npy": np.load,
     "text_int": lambda x: np.loadtxt(
-        StringIO(x), ndmin=1, dtype=np.long, delimiter=" "
+        StringIO(x), ndmin=1, dtype=np.int64, delimiter=" "
     ),
-    "csv_int": lambda x: np.loadtxt(StringIO(x), ndmin=1, dtype=np.long, delimiter=","),
+    "csv_int": lambda x: np.loadtxt(
+        StringIO(x), ndmin=1, dtype=np.int64, delimiter=","
+    ),
     "text_float": lambda x: np.loadtxt(
         StringIO(x), ndmin=1, dtype=np.float32, delimiter=" "
     ),

@@ -61,4 +61,3 @@ teardown() {
     python ${utils}/feat-to-shape.py --filetype sound scp:${tmpdir}/wav.scp ${tmpdir}/shape.txt
     diff ${tmpdir}/shape.txt ${tmpdir}/valid.txt
 }
-

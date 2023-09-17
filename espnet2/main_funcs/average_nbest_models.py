@@ -1,13 +1,10 @@
 import logging
-from pathlib import Path
-from typing import Optional
-from typing import Sequence
-from typing import Union
 import warnings
+from pathlib import Path
+from typing import Collection, Optional, Sequence, Union
 
 import torch
 from typeguard import check_argument_types
-from typing import Collection
 
 from espnet2.train.reporter import Reporter
 
@@ -96,6 +93,7 @@ def average_nbest_models(
                         # (If there are any cases that requires averaging
                         #  or the other reducing method, e.g. max/min, for integer type,
                         #  please report.)
+                        logging.info(f"Accumulating {k} instead of averaging")
                         pass
                     else:
                         avg[k] = avg[k] / n

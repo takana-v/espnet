@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Set bash to 'debug' mode, it will exit on :
 # -e 'error', -u 'undefined variable', -o ... 'error in pipeline', -x 'print commands',
-set -e
-set -u
-set -o pipefail
+#set -e
+#set -u
+#set -o pipefail
 
 src_lang=es
 tgt_lang=en
@@ -15,19 +15,20 @@ test_set="fisher_dev fisher_dev2 fisher_test callhome_devtest callhome_evltest"
 st_config=conf/train_st.yaml
 inference_config=conf/decode_st.yaml
 
-src_nbpe=500
-tgt_nbpe=500
+src_nbpe=1000
+tgt_nbpe=1000
 
 src_case=lc.rm
 tgt_case=lc.rm
 
 ./st.sh \
+    --use_streaming false \
     --local_data_opts "--stage 0" \
     --audio_format "flac.ark" \
     --use_lm false \
     --token_joint false \
     --nj 40 \
-    --inference_nj 8 \
+    --fs 8k \
     --src_lang ${src_lang} \
     --tgt_lang ${tgt_lang} \
     --src_token_type "bpe" \

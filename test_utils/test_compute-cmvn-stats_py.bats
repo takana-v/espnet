@@ -86,5 +86,3 @@ raise RuntimeError("kaldiioを使用することはできません。")
 np.testing.assert_allclose(test, valid, rtol=1e-3)
 EOF
 }
-
-

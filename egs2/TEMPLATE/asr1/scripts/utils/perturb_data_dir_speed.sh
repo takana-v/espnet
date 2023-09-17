@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # 2020 @kamo-naoyuki
-# This file was copied from Kaldi and 
-# I deleted parts related to wav duration 
+# This file was copied from Kaldi and
+# I deleted parts related to wav duration
 # because we shouldn't use kaldi's command here
 # and we don't need the files actually.
 
@@ -115,5 +115,5 @@ fi
 
 rm "${destdir}"/spk_map "${destdir}"/utt_map "${destdir}"/reco_map 2>/dev/null
 echo "$0: generated speed-perturbed version of data in ${srcdir}, in ${destdir}"
-
+utils/fix_data_dir.sh "${destdir}"
 utils/validate_data_dir.sh --no-feats --no-text "${destdir}"
