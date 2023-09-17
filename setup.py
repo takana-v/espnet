@@ -73,7 +73,7 @@ requirements = {
         "gtn",
     ],
     "setup": [
-        "numpy<=1.21.3",
+        "numpy<=1.25",
         "pytest-runner",
     ],
     "test": [
